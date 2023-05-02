@@ -8,6 +8,7 @@ import sys
 import urllib.request
 import subprocess
 import zipfile
+import psutil
 
 # Definición de funciones
 def respuesta(valor) :
@@ -85,25 +86,28 @@ button_no.pack(side=tk.LEFT, padx=10)
 menu_preguntamc.mainloop()
 
 # Respuesta afirmativa para Minecraft premium
-if mcpremium = True :
+if mcpremium == True :
     urllib.request.urlretrieve("https://files.multimc.org/downloads/mmc-develop-win32.zip", os.path.join(carpeta_cache, "mmc-develop-win32.zip"))
 
     with zipfile.ZipFile(os.path.join(carpeta_cache, "mmc-develop-win32.zip"), "r") as zip_ref :
         zip_ref.extractall(os.path.join(os.path.expanduser("~"), "Desktop"))
 
 # Respuesta negativa para Minecraft premium
-if mcpremium = False :
+if mcpremium == False :
     print("hola")
 
 # Modificación de la memoria asignada
 ruta_archivo = os.path.join(os.path.expanduser('~'), 'Desktop\\MultiMC', 'multimc.cfg')
+ram_mc = psutil.virtual_memory().total / 2097152
 
 with open(ruta_archivo, 'r+') as multimc_config :
     lineas = multimc_config.readlines()
     
     for i, linea in enumerate(lineas) :
         if linea.startswith('MaxMemAlloc') :
-            lineas[i] = 'MaxMemAlloc=12288\n'
+            lineas[i] = f'MaxMemAlloc={ram_mc:.0f}\n'
+        elif linea.startswith('MinMemAlloc') :
+            lineas[i] = f'MinMemAlloc={ram_mc:.0f}\n'
             
     multimc_config.seek(0)
     multimc_config.writelines(lineas)
