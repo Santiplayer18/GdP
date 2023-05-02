@@ -92,15 +92,9 @@ if mcpremium == True :
     with zipfile.ZipFile(os.path.join(carpeta_cache, "mmc-develop-win32.zip"), "r") as zip_ref :
         zip_ref.extractall(os.path.join(os.path.expanduser("~"), "Desktop"))
 
-# Respuesta negativa para Minecraft premium
-if mcpremium == False :
-    print("hola")
-
-# Modificación de la memoria asignada
-ruta_archivo = os.path.join(os.path.expanduser('~'), 'Desktop\\MultiMC', 'multimc.cfg')
 ram_mc = psutil.virtual_memory().total / 2097152
 
-with open(ruta_archivo, 'r+') as multimc_config :
+with open(os.path.join(os.path.expanduser('~'), 'Desktop\\MultiMC', 'multimc.cfg'), 'r+') as multimc_config :
     lineas = multimc_config.readlines()
     
     for i, linea in enumerate(lineas) :
@@ -113,3 +107,26 @@ with open(ruta_archivo, 'r+') as multimc_config :
     multimc_config.writelines(lineas)
     
     multimc_config.truncate()
+    
+# Respuesta negativa para Minecraft premium
+if mcpremium == False :
+    urllib.request.urlretrieve("https://nightly.link/UltimMC/Launcher/workflows/main/develop/mmc-cracked-win32.zip", os.path.join(carpeta_cache, "mmc-cracked-win32.zip"))
+
+    with zipfile.ZipFile(os.path.join(carpeta_cache, "mmc-cracked-win32.zip"), "r") as zip_ref :
+        zip_ref.extractall(os.path.join(os.path.expanduser("~"), "Desktop"))
+
+ram_mc = psutil.virtual_memory().total / 2097152
+
+with open(os.path.join(os.path.expanduser('~'), 'Desktop\\UltimMC', 'ultimmc.cfg'), 'r+') as ultimmc_config :
+    lineas = ultimmc_config.readlines()
+    
+    for i, linea in enumerate(lineas) :
+        if linea.startswith('MaxMemAlloc') :
+            lineas[i] = f'MaxMemAlloc={ram_mc:.0f}\n'
+        elif linea.startswith('MinMemAlloc') :
+            lineas[i] = f'MinMemAlloc={ram_mc:.0f}\n'
+            
+    ultimmc_config.seek(0)
+    ultimmc_config.writelines(lineas)
+    
+    ultimmc_config.truncate()
