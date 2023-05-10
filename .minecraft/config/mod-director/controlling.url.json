@@ -1,0 +1,10 @@
+{
+    "url": "https://github.com/Santiplayer18/GdP/raw/modpack/.minecraft/mods/Controlling-3.0.12.2.jar",
+    "installationPolicy": {
+       "continueOnFailedDownload": false,
+       "optionalKey": "$",
+       "selectedByDefault": false,
+       "name": "Controlling",
+       "description": "Adds the ability to search for keybinds using their name in the KeyBinding menu, this allows players to easily find a key binding in the menu"
+    }
+}
