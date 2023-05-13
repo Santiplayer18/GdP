@@ -17,8 +17,6 @@ if not admin:
     tk.Label(menu_noadmin, text="El programa no puede continuar al carecer de permisos de administrador").pack(pady=10)
     tk.Label(menu_noadmin, text="Por favor, vuélvalo a intentar con los permisos necesarios").pack(pady=10)
 
-    logging.error("Privilegios de administrador no detectados")
     menu_noadmin.mainloop()
 
-    logging.error("Error fatal. Forzada finalización del programa")
     sys.exit()
