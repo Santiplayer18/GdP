@@ -1,8 +1,8 @@
 import tkinter as tk
 import os
-import psutil
-import zipfile
 import urllib.request
+import zipfile
+import psutil
 import ctypes
 from ctypes import wintypes
 
