@@ -1,9 +1,13 @@
 # GdP Installer - Creado por Santiago Cano Muélledes
 
-# Importación de librerías
+# Creación del fichero caché
 import os
+carpeta_cache = os.path.join(os.path.expanduser("~"), "Downloads", "cache_gdp")
+os.makedirs(carpeta_cache, exist_ok=True)
+
+# Importación de librerías
 import logging
-logging.basicConfig(filename=os.path.join(os.path.join(os.path.expanduser("~"), "Desktop"), "latest.log", level=logging.DEBUG, format="%(asctime)s %(levelname)s: %(message)s"))
+logging.basicConfig(filename=os.path.join(os.path.expanduser("~"), "Downloads", "cache_gdp", "latest.log"), level=logging.DEBUG, format="%(asctime)s %(levelname)s: %(message)s")
 import tkinter as tk
 import ctypes
 from ctypes import wintypes
@@ -12,11 +16,6 @@ import subprocess
 import urllib.request
 import zipfile
 import psutil
-
-# Definición de variables clave
-carpeta_cache = os.path.join(os.path.expanduser("~"), "Downloads", "cache_gdp")
-os.makedirs(carpeta_cache, exist_ok=True)
-mcpremium = False
 
 # Definición de funciones
 def configurar_laucher(launcher, url_launcher, carpeta_launcher):
@@ -45,21 +44,21 @@ def configurar_laucher(launcher, url_launcher, carpeta_launcher):
         mod_config.truncate()
     logging.info("Personalización de la RAM finalizada con éxito")
 
-def crear_acceso(target_path, shortcut_path):
+def crear_acceso(directorio_diana, directorio_acceso):
     shell_link = ctypes.CoCreateInstance(
         wintypes.CLSID_ShellLink, None, wintypes.CLSCTX_INPROC_SERVER, wintypes.IID_IShellLink
     )
 
-    shell_link.SetPath(target_path)
+    shell_link.SetPath(directorio_diana)
 
     persist_file = shell_link.QueryInterface(wintypes.IID_IPersistFile)
-    persist_file.Save(shortcut_path, True)
+    persist_file.Save(directorio_acceso, True)
 
 # Inicio del programa
 # Saludo al usuario y espera a confirmación para continuar
 logging.info("Inicialización del programa")
 
-logging.info("Comenzando proceso de saludo y espera a confirmación...")
+logging.info("Comenzando proceso de saludo...")
 
 menu_bienvenida = tk.Tk()
 menu_bienvenida.geometry("500x80")
@@ -68,7 +67,7 @@ menu_bienvenida.title("GdP Installer")
 tk.Label(menu_bienvenida, text="¡Bienvenido a GdP Installer! Cuando desee comenzar con la instalación, pulse 'Continuar'").pack(pady=10)
 tk.Button(menu_bienvenida, text="Continuar", command=lambda: menu_bienvenida.destroy()).pack()
 
-logging.info("Menú de bienvenida mostrado con éxito")
+logging.info("Saludo mostrado con éxito")
 menu_bienvenida.mainloop()
 
 # Determinación de privilegios de administrador
@@ -102,19 +101,22 @@ try:
     subprocess.check_call(["wmic", "product", "where", "name like '%IBM Semeru%' and name like '%8u%'", "call", "uninstall", "/nointeractive"])
     logging.info("Proceso finalizado con éxito")
 except subprocess.CalledProcessError:
-    logging.error("Fallo en el proceso de desinstalación")
+    logging.error("Desinstalación no realizada")
+    logging.error("Error fatal. Forzada finalización del programa")
+    sys.exit()
 
 #Instalación de la última versión de Java 8
 logging.info("Comenzando proceso de instalación de la última versión de Java 8...")
 
-instalador_java = os.path.join(carpeta_cache, "ibm-semeru-open-jdk_x64_windows_8u362b09_openj9-0.36.0.msi")
-urllib.request.urlretrieve("https://github.com/ibmruntimes/semeru8-binaries/releases/download/jdk8u362-b09_openj9-0.36.0/ibm-semeru-open-jdk_x64_windows_8u362b09_openj9-0.36.0.msi", instalador_java)
+urllib.request.urlretrieve("https://github.com/ibmruntimes/semeru8-binaries/releases/download/jdk8u362-b09_openj9-0.36.0/ibm-semeru-open-jdk_x64_windows_8u362b09_openj9-0.36.0.msi", os.path.join(carpeta_cache, "Java8.msi"))
 
 try:
-    subprocess.run(["msiexec.exe", "/i", instalador_java, "/qn"], check=True)
-    logging.info("Instalación completada con éxito")
+    subprocess.run(["msiexec.exe", "/i", os.path.join(carpeta_cache, "Java8.msi"), "/qn"], check=True)
+    logging.info("Instalación finalizada con éxito")
 except subprocess.CalledProcessError:
-    logging.error("Fallo en el proceso de desinstalación")
+    logging.error("Instalación no realizada")
+    logging.error("Error fatal. Forzada finalización del programa")
+    sys.exit()
 
 # Pregunta para dividir usuarios premium y no premium
 logging.info("Comenzando proceso de pregunta sobre la posesión de Minecraft: Java Edition...")
@@ -124,6 +126,9 @@ menu_preguntamc.geometry("300x90")
 menu_preguntamc.title("GdP Installer")
 
 tk.Label(menu_preguntamc, text="¿Actualmente posee Minecraft: Java Edition?").pack(pady=10)
+
+mcpremium = tk.BooleanVar()
+mcpremium.set(False)
 
 marco_botones = tk.Frame(menu_preguntamc)
 marco_botones.pack()
@@ -138,11 +143,13 @@ menu_preguntamc.mainloop()
 logging.info("Comenzando proceso de configuración del launcher...")
 
 if mcpremium:
-    configurar_laucher("MultiMC", "https://files.multimc.org/downloads/mmc-develop-win32.zip", os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC"))
+    configurar_laucher("MultiMC", "https://github.com/Santiplayer18/GdP/raw/modpack/MultiMC.zip", os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC"))
     crear_acceso(os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC", "MultiMC.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC.lnk"))
 else:
-    configurar_laucher("UltimMC", "https://nightly.link/UltimMC/Launcher/workflows/main/develop/mmc-cracked-win32.zip", os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC"))
-    crear_acceso(os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC", "UltimMC.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC.lnk"))
+    configurar_laucher("UltimMC", "https://github.com/Santiplayer18/GdP/raw/modpack/UltimMC.zip", os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC"))
+    crear_acceso(os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC", "UltimMC.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC.lnk"))
+
+logging.info("Configuración del launcher finalizada con éxito")
 
 # Eliminación de la carpeta caché
 logging.info("Comenzando proceso de eliminación de la carpeta caché...")
