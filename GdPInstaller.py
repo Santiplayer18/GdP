@@ -56,16 +56,6 @@ def crear_acceso(directorio_diana, directorio_acceso):
     persist_file.Save(directorio_acceso, True)
     logging.info("Creación del acceso directo finalizado con éxito")
 
-def ejecutar_launcher():
-    logging.info("Comenzando proceso de ejecución del launcher...")
-    if ejecutarlauncher.get():
-        if mcpremium:
-            os.startfile(os.path.join(carpeta_launcher, "prismlauncher.exe"))
-            logging.info("Ejecución de PrismLauncher finalizada con éxito")
-        else:
-            os.startfile(os.path.join(carpeta_launcher, "pollymc.exe"))
-            logging.info("Ejecución de PollyMC finalizada con éxito")
-
 # Inicio del programa
 # Saludo al usuario y espera a confirmación para continuar
 logging.info("Inicialización del programa")
@@ -169,22 +159,30 @@ logging.info("Configuración del launcher finalizada con éxito")
 logging.info("Comenzando proceso de aviso y pregunta sobre ejecución de launcher...")
 
 menu_fin = tk.Tk()
-menu_fin.geometry("400x90")
+menu_fin.geometry("400x180")
 menu_fin.title("GdP Installer")
 
 tk.Label(menu_fin, text="La instalación ha finalizado exitosamente").pack(pady=10)
 tk.Label(menu_fin, text="Si lo desea, puede ejecutar directamente el launcher").pack(pady=10)
 
 ejecutarlauncher = tk.BooleanVar()
-ejecutarlauncher.set(False)
 
 casilla_verificacion = tk.Checkbutton(menu_fin, text="Ejecutar launcher", variable=ejecutarlauncher)
-casilla_verificacion.pack()
+casilla_verificacion.pack(pady=10)
 
-tk.Button(menu_fin, text="Finalizar", command=lambda: (ejecutar_launcher, menu_fin.destroy())).pack()
+tk.Button(menu_fin, text="Finalizar", command=lambda: (menu_fin.destroy())).pack()
 
 logging.info("Aviso y pregunta formulados con éxito")
 menu_fin.mainloop()
+
+logging.info("Comenzando proceso de ejecución del launcher...")
+if ejecutarlauncher.get():
+    if mcpremium:
+        os.startfile(os.path.join(carpeta_launcher, "prismlauncher.exe"))
+        logging.info("Ejecución de PrismLauncher finalizada con éxito")
+    else:
+        os.startfile(os.path.join(carpeta_launcher, "pollymc.exe"))
+        logging.info("Ejecución de PollyMC finalizada con éxito")
 
 # Eliminación de la carpeta caché
 logging.info("Comenzando proceso de eliminación de la carpeta caché...")
