@@ -7,7 +7,7 @@ os.makedirs(carpeta_cache, exist_ok=True)
 
 # Importación de librerías
 import logging
-logging.basicConfig(filename=os.path.join(os.path.expanduser("~"), "Downloads", "cache_gdp", "latest.log"), level=logging.DEBUG, format="%(asctime)s %(levelname)s: %(message)s")
+logging.basicConfig(filename=os.path.join(carpeta_cache, "latest.log"), level=logging.DEBUG, format="%(asctime)s %(levelname)s: %(message)s")
 import tkinter as tk
 import ctypes
 from ctypes import wintypes
@@ -18,20 +18,20 @@ import zipfile
 import psutil
 
 # Definición de funciones
-def configurar_laucher(launcher, url_launcher, carpeta_launcher):
+def configurar_laucher(launcher, url, carpeta):
     logging.info(f"Comenzando proceso de descarga de {launcher}...")
-    urllib.request.urlretrieve(url_launcher, os.path.join(carpeta_cache, f"{launcher}.zip"))
+    urllib.request.urlretrieve(url, os.path.join(carpeta_cache, f"{launcher}.zip"))
     logging.info("Descarga finalizada con éxito")
 
     logging.info(f"Comenzando proceso de descompresión de {launcher}...")
     with zipfile.ZipFile(os.path.join(carpeta_cache, f"{launcher}.zip"), "r") as zip_ref:
-        zip_ref.extractall(os.path.join(os.path.expanduser("~"), "Desktop", carpeta_launcher))
+        zip_ref.extractall(carpeta)
     logging.info("Descompresión finalizada con éxito")
 
     ram_minecraft = psutil.virtual_memory().total / 2097152
 
     logging.info("Comenzando proceso de personalización de la RAM...")
-    with open(os.path.join(os.path.expanduser("~"), "Desktop", carpeta_launcher, f"{launcher}.cfg"), "r+") as mod_config:
+    with open(os.path.join(carpeta, f"{launcher}.cfg"), "r+") as mod_config:
         lineas = mod_config.readlines()
         for i, linea in enumerate(lineas):
             if linea.startswith('MaxMemAlloc'):
@@ -45,6 +45,7 @@ def configurar_laucher(launcher, url_launcher, carpeta_launcher):
     logging.info("Personalización de la RAM finalizada con éxito")
 
 def crear_acceso(directorio_diana, directorio_acceso):
+    logging.info("Comenzando proceso de creación del acceso directo...")
     shell_link = ctypes.CoCreateInstance(
         wintypes.CLSID_ShellLink, None, wintypes.CLSCTX_INPROC_SERVER, wintypes.IID_IShellLink
     )
@@ -53,6 +54,17 @@ def crear_acceso(directorio_diana, directorio_acceso):
 
     persist_file = shell_link.QueryInterface(wintypes.IID_IPersistFile)
     persist_file.Save(directorio_acceso, True)
+    logging.info("Creación del acceso directo finalizado con éxito")
+
+def ejecutar_launcher():
+    logging.info("Comenzando proceso de ejecución del launcher...")
+    if ejecutarlauncher.get():
+        if mcpremium:
+            os.startfile(os.path.join(carpeta_launcher, "prismlauncher.exe"))
+            logging.info("Ejecución de PrismLauncher finalizada con éxito")
+        else:
+            os.startfile(os.path.join(carpeta_launcher, "pollymc.exe"))
+            logging.info("Ejecución de PollyMC finalizada con éxito")
 
 # Inicio del programa
 # Saludo al usuario y espera a confirmación para continuar
@@ -143,13 +155,36 @@ menu_preguntamc.mainloop()
 logging.info("Comenzando proceso de configuración del launcher...")
 
 if mcpremium:
-    configurar_laucher("MultiMC", "https://github.com/Santiplayer18/GdP/raw/modpack/MultiMC.zip", os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC"))
-    crear_acceso(os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC", "MultiMC.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "MultiMC.lnk"))
+    carpeta_launcher = os.path.join(os.path.expanduser("~"), "Desktop", "PrismLauncher")
+    configurar_laucher("PrismLauncher", "https://github.com/Santiplayer18/GdP/raw/modpack/PrismLauncher.zip", carpeta_launcher)
+    crear_acceso(os.path.join(carpeta_launcher, "prismlauncher.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "PrismLauncher.lnk"))
 else:
-    configurar_laucher("UltimMC", "https://github.com/Santiplayer18/GdP/raw/modpack/UltimMC.zip", os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC"))
-    crear_acceso(os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC", "UltimMC.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "UltimMC.lnk"))
+    carpeta_launcher = os.path.join(os.path.expanduser("~"), "Desktop", "PollyMC")
+    configurar_laucher("PollyMC", "https://github.com/Santiplayer18/GdP/raw/modpack/PollyMC.zip", carpeta_launcher)
+    crear_acceso(os.path.join(carpeta_launcher, "pollymc.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "PollyMC.lnk"))
 
 logging.info("Configuración del launcher finalizada con éxito")
+
+# Aviso de finalización y pregunta de ejecución de launcher
+logging.info("Comenzando proceso de aviso y pregunta sobre ejecución de launcher...")
+
+menu_fin = tk.Tk()
+menu_fin.geometry("400x90")
+menu_fin.title("GdP Installer")
+
+tk.Label(menu_fin, text="La instalación ha finalizado exitosamente").pack(pady=10)
+tk.Label(menu_fin, text="Si lo desea, puede ejecutar directamente el launcher").pack(pady=10)
+
+ejecutarlauncher = tk.BooleanVar()
+ejecutarlauncher.set(False)
+
+casilla_verificacion = tk.Checkbutton(menu_fin, text="Ejecutar launcher", variable=ejecutarlauncher)
+casilla_verificacion.pack()
+
+tk.Button(menu_fin, text="Finalizar", command=lambda: (ejecutar_launcher, menu_fin.destroy())).pack()
+
+logging.info("Aviso y pregunta formulados con éxito")
+menu_fin.mainloop()
 
 # Eliminación de la carpeta caché
 logging.info("Comenzando proceso de eliminación de la carpeta caché...")
