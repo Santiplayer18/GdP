@@ -29,26 +29,37 @@ def configurar_laucher(launcher, url, carpeta):
     logging.info("Descompresión finalizada con éxito")
 
     ram_minecraft = psutil.virtual_memory().total / 2097152
+    nucleos_cpu = psutil.cpu_count(logical=False)
 
     logging.info("Comenzando proceso de personalización de la RAM...")
-    with open(os.path.join(carpeta, f"{launcher}.cfg"), "r+") as mod_config:
-        lineas = mod_config.readlines()
+    with open(os.path.join(carpeta, f"{launcher}.cfg"), "r+") as launcher_config:
+        lineas = launcher_config.readlines()
         for i, linea in enumerate(lineas):
             if linea.startswith('MaxMemAlloc'):
                 lineas[i] = f'MaxMemAlloc={ram_minecraft:.0f}\n'
             elif linea.startswith('MinMemAlloc'):
                 lineas[i] = f'MinMemAlloc={ram_minecraft:.0f}\n'
 
-        mod_config.seek(0)
-        mod_config.writelines(lineas)
-        mod_config.truncate()
+        launcher_config.seek(0)
+        launcher_config.writelines(lineas)
+        launcher_config.truncate()
     logging.info("Personalización de la RAM finalizada con éxito")
+
+    logging.info("Comenzando proceso de personalización de los núcleos...")
+    with open(os.path.join(carpeta, "instances", "GdP-Client", "instance.cfg"), "r+") as instance_config:
+        lineas = instance_config.readlines()
+        for i, linea in enumerate(lineas):
+            if linea.startswith('JvmArgs'):
+                lineas[i] = lineas[i] = f'JvmArgs=-d64 -XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UseCodeCacheFlushing -XX:ParallelGCThreads={nucleos_cpu} -XX:SoftRefLRUPolicyMSPerMB=10000 -XX:ReservedCodeCacheSize=2048m -XX:+OptimizeStringConcat -XX:+AggressiveOpts -XX:+UseBiasedLocking -XX:SurvivorRatio=8 -XX:TargetSurvivorRatio=90 -XX:MaxTenuringThreshold=15 -Dfml.ignorePatchDiscrepancies=true -Dfml.ignoreInvalidMinecraftCertificates=true -XX:+UseFastAccessorMethods -XX:+UseAdaptiveGCBoundary -XX:-UseGCOverheadLimit -XX:+UseNUMA -XX:+CMSParallelRemarkEnabled -XX:MaxTenuringThreshold=15\n'
+
+        instance_config.seek(0)
+        instance_config.writelines(lineas)
+        instance_config.truncate()
+    logging.info("Personalización de los núcleos finalizada con éxito")
 
 def crear_acceso(directorio_diana, directorio_acceso):
     logging.info("Comenzando proceso de creación del acceso directo...")
-    shell_link = ctypes.CoCreateInstance(
-        wintypes.CLSID_ShellLink, None, wintypes.CLSCTX_INPROC_SERVER, wintypes.IID_IShellLink
-    )
+    shell_link = ctypes.CoCreateInstance(wintypes.CLSID_ShellLink, None, wintypes.CLSCTX_INPROC_SERVER, wintypes.IID_IShellLink)
 
     shell_link.SetPath(directorio_diana)
 
@@ -110,7 +121,7 @@ except subprocess.CalledProcessError:
 #Instalación de la última versión de Java 8
 logging.info("Comenzando proceso de instalación de la última versión de Java 8...")
 
-urllib.request.urlretrieve("https://github.com/ibmruntimes/semeru8-binaries/releases/download/jdk8u362-b09_openj9-0.36.0/ibm-semeru-open-jdk_x64_windows_8u362b09_openj9-0.36.0.msi", os.path.join(carpeta_cache, "Java8.msi"))
+urllib.request.urlretrieve("https://github.com/ibmruntimes/semeru8-binaries/releases/download/jdk8u372-b07_openj9-0.38.0/ibm-semeru-open-jdk_x64_windows_8u372b07_openj9-0.38.0.msi", os.path.join(carpeta_cache, "Java8.msi"))
 
 try:
     subprocess.run(["msiexec.exe", "/i", os.path.join(carpeta_cache, "Java8.msi"), "/qn"], check=True)
