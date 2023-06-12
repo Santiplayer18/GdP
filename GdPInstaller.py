@@ -156,9 +156,9 @@ menu_preguntamc.mainloop()
 logging.info("Comenzando proceso de configuración del launcher...")
 
 if mcpremium:
-    carpeta_launcher = os.path.join(os.path.expanduser("~"), "Desktop", "PrismLauncher")
-    configurar_laucher("PrismLauncher", "https://github.com/Santiplayer18/GdP/raw/modpack/PrismLauncher.zip", carpeta_launcher)
-    crear_acceso(os.path.join(carpeta_launcher, "prismlauncher.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "PrismLauncher.lnk"))
+    carpeta_launcher = os.path.join(os.path.expanduser("~"), "Desktop", "PolyMC")
+    configurar_laucher("PolyMC", "https://github.com/Santiplayer18/GdP/raw/modpack/PrismLauncher.zip", carpeta_launcher)
+    crear_acceso(os.path.join(carpeta_launcher, "polymc.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "PolyMC.lnk"))
 else:
     carpeta_launcher = os.path.join(os.path.expanduser("~"), "Desktop", "PollyMC")
     configurar_laucher("PollyMC", "https://github.com/Santiplayer18/GdP/raw/modpack/PollyMC.zip", carpeta_launcher)
@@ -189,8 +189,8 @@ menu_fin.mainloop()
 logging.info("Comenzando proceso de ejecución del launcher...")
 if ejecutarlauncher.get():
     if mcpremium:
-        os.startfile(os.path.join(carpeta_launcher, "prismlauncher.exe"))
-        logging.info("Ejecución de PrismLauncher finalizada con éxito")
+        os.startfile(os.path.join(carpeta_launcher, "polymc.exe"))
+        logging.info("Ejecución de PolyMC finalizada con éxito")
     else:
         os.startfile(os.path.join(carpeta_launcher, "pollymc.exe"))
         logging.info("Ejecución de PollyMC finalizada con éxito")
