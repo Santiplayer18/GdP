@@ -160,7 +160,7 @@ if mcpremium:
     configurar_laucher("PolyMC", "https://github.com/Santiplayer18/GdP/raw/modpack/PrismLauncher.zip", carpeta_launcher)
     crear_acceso(os.path.join(carpeta_launcher, "polymc.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "PolyMC.lnk"))
 else:
-    carpeta_launcher = os.path.join(os.path.expanduser("~"), "Desktop", "PollyMC")
+    carpeta_launcher = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "PollyMC")
     configurar_laucher("PollyMC", "https://github.com/Santiplayer18/GdP/raw/modpack/PollyMC.zip", carpeta_launcher)
     crear_acceso(os.path.join(carpeta_launcher, "pollymc.exe"), os.path.join(os.path.expanduser("~"), "Desktop", "PollyMC.lnk"))
 
